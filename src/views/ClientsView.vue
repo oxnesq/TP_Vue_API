@@ -24,10 +24,10 @@
           <td>{{ clients.adresse.ville }}</td>
         </tr>
         <tr>
-          <td><button>first page</button></td>
-          <td><button>previous</button></td>
-          <td><button>next</button></td>
-          <td><button>last page</button></td>
+          <td><button @click="chargeClients">first page</button></td>
+          <td><button @click="findPage(-1)">previous</button></td>
+          <td><button @click="findPage(+1)">next</button></td>
+          <td><button @click="findPage('totalPages')">last page</button></td>
         </tr>
       </table>
     </div>
@@ -53,9 +53,30 @@ function chargeClients() {
   // Appel à l'API pour avoir la liste des catégories
   // Trié par code, descendant
   // Verbe HTTP GET par défaut
-  doAjaxRequest("/api/clients")
+  doAjaxRequest("/api/clients?page=0&size=5")
       .then((json) => {
         data.listeClients = json._embedded.clients;
+        numPage();
+      })
+      .catch(showError);
+}
+
+function numPage(){
+  return ;
+}
+
+function findPage(num) {
+  // Appel à l'API pour avoir la liste des catégories
+  // Trié par code, descendant
+  // Verbe HTTP GET par défaut
+  doAjaxRequest(`/api/clients?page=0&size=5`)
+      .then((json) => {
+        let numPage = json.page.number;
+        doAjaxRequest(`/api/clients?page=${numPage+num}&size=5`)
+            .then((json) => {
+              data.listeClients = json._embedded.clients;
+            })
+            .catch(showError);
       })
       .catch(showError);
 }
