@@ -71,8 +71,11 @@ function nextPage(num) {
   // Verbe HTTP GET par défaut
   doAjaxRequest(`/api/clients?page=${num+1}&size=5`)
       .then((json) => {
-        numPage+=1;
-        data.listeClients = json._embedded.clients;
+        if (numPage!=lastPage){
+          numPage+=1;
+          data.listeClients = json._embedded.clients;
+        }
+
       })
       .catch(showError);
 }
