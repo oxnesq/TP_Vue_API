@@ -25,9 +25,9 @@
         </tr>
         <tr>
           <td><button @click="chargeClients">first page</button></td>
-          <td><button @click="findPage(-1)">previous</button></td>
-          <td><button @click="findPage(+1)">next</button></td>
-          <td><button @click="findPage('totalPages')">last page</button></td>
+          <td><button @click="Page(numPage)">previous</button></td>
+          <td><button @click="nextPage(numPage)">next</button></td>
+          <td><button @click="goLastPage(lastPage)">last page</button></td>
         </tr>
       </table>
     </div>
@@ -49,34 +49,42 @@ function showError(error) {
   alert(error.message);
 }
 
+let  numPage=0;
+let lastPage =0;
+
 function chargeClients() {
   // Appel à l'API pour avoir la liste des catégories
   // Trié par code, descendant
   // Verbe HTTP GET par défaut
   doAjaxRequest("/api/clients?page=0&size=5")
       .then((json) => {
+        lastPage = json.page.totalPages-1;
         data.listeClients = json._embedded.clients;
-        numPage();
       })
       .catch(showError);
 }
 
-function numPage(){
-  return ;
-}
-
-function findPage(num) {
+function nextPage(num) {
   // Appel à l'API pour avoir la liste des catégories
   // Trié par code, descendant
   // Verbe HTTP GET par défaut
-  doAjaxRequest(`/api/clients?page=0&size=5`)
+  doAjaxRequest(`/api/clients?page=${num}&size=5`)
       .then((json) => {
-        let numPage = json.page.number;
-        doAjaxRequest(`/api/clients?page=${numPage+num}&size=5`)
-            .then((json) => {
-              data.listeClients = json._embedded.clients;
-            })
-            .catch(showError);
+        numPage+=1;
+        data.listeClients = json._links.next.href._embedded.clients;
+
+      })
+      .catch(showError);
+}
+
+function goLastPage(num) {
+  // Appel à l'API pour avoir la liste des catégories
+  // Trié par code, descendant
+  // Verbe HTTP GET par défaut
+  doAjaxRequest(`/api/clients?page=${num}&size=5`)
+      .then((json) => {
+        data.listeClients = json._embedded.clients;
+
       })
       .catch(showError);
 }
