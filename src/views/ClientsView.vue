@@ -5,7 +5,7 @@
     </div>
     <div>
       <table>
-        <caption>Les clients - page 1/10</caption> //ADD NUMBER CHANGES
+        <caption>Les clients - page {{numPage}}/10</caption> //ADD NUMBER CHANGES
         <tr>
           <th>Code</th>
           <th>Societe</th>
@@ -25,7 +25,7 @@
         </tr>
         <tr>
           <td><button @click="chargeClients">first page</button></td>
-          <td><button @click="Page(numPage)">previous</button></td>
+          <td><button @click="prevPage(numPage)">previous</button></td>
           <td><button @click="nextPage(numPage)">next</button></td>
           <td><button @click="goLastPage(lastPage)">last page</button></td>
         </tr>
@@ -58,6 +58,7 @@ function chargeClients() {
   // Verbe HTTP GET par défaut
   doAjaxRequest("/api/clients?page=0&size=5")
       .then((json) => {
+        numPage=0;
         lastPage = json.page.totalPages-1;
         data.listeClients = json._embedded.clients;
       })
@@ -68,11 +69,22 @@ function nextPage(num) {
   // Appel à l'API pour avoir la liste des catégories
   // Trié par code, descendant
   // Verbe HTTP GET par défaut
-  doAjaxRequest(`/api/clients?page=${num}&size=5`)
+  doAjaxRequest(`/api/clients?page=${num+1}&size=5`)
       .then((json) => {
         numPage+=1;
-        data.listeClients = json._links.next.href._embedded.clients;
+        data.listeClients = json._embedded.clients;
+      })
+      .catch(showError);
+}
 
+function prevPage(num) {
+  // Appel à l'API pour avoir la liste des catégories
+  // Trié par code, descendant
+  // Verbe HTTP GET par défaut
+  doAjaxRequest(`/api/clients?page=${num-1}&size=5`)
+      .then((json) => {
+        numPage-=1;
+        data.listeClients = json._embedded.clients;
       })
       .catch(showError);
 }
@@ -83,8 +95,8 @@ function goLastPage(num) {
   // Verbe HTTP GET par défaut
   doAjaxRequest(`/api/clients?page=${num}&size=5`)
       .then((json) => {
+        numPage=lastPage;
         data.listeClients = json._embedded.clients;
-
       })
       .catch(showError);
 }
